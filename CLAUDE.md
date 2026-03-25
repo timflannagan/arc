@@ -15,7 +15,8 @@ make install  # installs to $GOPATH/bin
 - **Scheme** (`pkg/scheme/`): Parses YAML with `apiVersion`/`kind` dispatch, supports multi-document files.
 - **Client** (`pkg/client/`): Thin HTTP client for the registry v0 API. Intentionally decoupled from the agentregistry module.
 - **Config** (`pkg/config/`): kubeconfig-style config at `~/.ar/config` with clusters, contexts, and auth.
-- **Commands** (`pkg/cmd/`): Cobra command tree. Core verbs: `apply`, `get`, `delete`, `config`.
+- **Scaffold** (`pkg/scaffold/`): Project scaffolding templates for each resource type. Used by `ar init`.
+- **Commands** (`pkg/cmd/`): Cobra command tree. Local ops: `init`, `build`. Registry ops: `apply`, `get`, `delete`. Config: `config`.
 - **Printer** (`pkg/printer/`): Output formatting (table, YAML, JSON) via `-o` flag.
 
 ## API Version

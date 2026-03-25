@@ -1,0 +1,19 @@
+apiVersion: ar.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: acme/fetch
+  version: "1.0.0"
+spec:
+  title: Fetch Server
+  description: "Fetches and extracts content from URLs"
+  status: active
+  repository:
+    url: https://github.com/acme/fetch-server
+    source: git
+  packages:
+    - registryType: oci
+      identifier: ghcr.io/acme/fetch:1.0.0
+      version: "1.0.0"
+      runTimeHint: python
+      transport:
+        type: stdio

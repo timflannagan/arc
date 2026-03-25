@@ -1,0 +1,19 @@
+apiVersion: ar.dev/v1alpha1
+kind: Skill
+metadata:
+  name: acme/summarize
+  version: "1.0.0"
+spec:
+  title: Summarization
+  category: nlp
+  description: "Summarizes long text into concise form"
+  status: active
+  repository:
+    url: https://github.com/acme/skills/tree/main/summarize
+    source: git
+  packages:
+    - registryType: docker
+      identifier: ghcr.io/acme/summarize-skill:1.0.0
+      version: "1.0.0"
+      transport:
+        type: docker

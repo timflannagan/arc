@@ -3,21 +3,33 @@ kind: Agent
 metadata:
   name: my-summarizer
   version: "1.0.0"
-  labels:
-    team: platform
 spec:
-  image: ghcr.io/org/summarizer:v1.0
-  framework: adk
+  image: ghcr.io/acme/summarizer:v1.0
   language: python
+  framework: adk
   modelProvider: Gemini
   modelName: gemini-2.0-flash
   description: "An agent that summarizes documents using Gemini"
+  status: active
+  repository:
+    url: https://github.com/acme/summarizer
+    source: git
   mcpServers:
     - type: registry
       name: fetch
-      registryServerName: com.example/fetch
+      registryURL: http://localhost:12121
+      registryServerName: acme/fetch
       registryServerVersion: "1.0"
+    - type: remote
+      name: unity-catalog
+      url: https://workspace.cloud.databricks.com/mcp
   skills:
     - name: summarize
-      registrySkillName: com.example/summarize
+      registryURL: http://localhost:12121
+      registrySkillName: acme/summarize
       registrySkillVersion: "1.0"
+  prompts:
+    - name: system-prompt
+      registryURL: http://localhost:12121
+      registryPromptName: acme/system-prompt
+      registryPromptVersion: "1.0"

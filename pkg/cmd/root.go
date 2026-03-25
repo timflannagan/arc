@@ -47,10 +47,12 @@ to inspect and manage resources.`,
 			// Parse output format.
 			outputFormat = printer.ParseFormat(flagOutput)
 
-			// Skip client setup for commands that don't need it.
-			switch cmd.Name() {
-			case "version", "config":
-				return nil
+			// Skip client setup for local-only commands.
+			for p := cmd; p != nil; p = p.Parent() {
+				switch p.Name() {
+				case "version", "config", "init", "build":
+					return nil
+				}
 			}
 
 			// Load config and resolve connection info.
@@ -89,6 +91,8 @@ to inspect and manage resources.`,
 
 	// Register subcommands.
 	root.AddCommand(
+		newInitCmd(),
+		newBuildCmd(),
 		newApplyCmd(),
 		newGetCmd(),
 		newDeleteCmd(),

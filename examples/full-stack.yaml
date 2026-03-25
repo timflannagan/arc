@@ -1,17 +1,34 @@
+# full-stack.yaml
+#
+# A single file defining an agent and all its dependencies.
+# Apply with: ar apply -f full-stack.yaml
+#
+# Resources are applied in document order, so define dependencies first:
+#   1. MCP servers and skills the agent references
+#   2. Prompts the agent uses
+#   3. The agent itself
+---
 apiVersion: ar.dev/v1alpha1
 kind: MCPServer
 metadata:
-  name: com.example/fetch
+  name: acme/fetch
   version: "1.0.0"
 spec:
   title: Fetch Server
-  description: "Fetches content from URLs"
+  description: "Fetches and extracts content from URLs"
   status: active
+  packages:
+    - registryType: oci
+      identifier: ghcr.io/acme/fetch:1.0.0
+      version: "1.0.0"
+      runTimeHint: python
+      transport:
+        type: stdio
 ---
 apiVersion: ar.dev/v1alpha1
 kind: Skill
 metadata:
-  name: com.example/summarize
+  name: acme/summarize
   version: "1.0.0"
 spec:
   title: Summarization
@@ -20,25 +37,42 @@ spec:
   status: active
 ---
 apiVersion: ar.dev/v1alpha1
+kind: Prompt
+metadata:
+  name: acme/system-prompt
+  version: "1.0.0"
+spec:
+  description: "Default system prompt for summarization agents"
+  content: |
+    You are a document summarization assistant.
+    Keep summaries concise and accurate.
+---
+apiVersion: ar.dev/v1alpha1
 kind: Agent
 metadata:
-  name: my-summarizer
+  name: acme/summarizer
   version: "1.0.0"
-  labels:
-    team: platform
 spec:
-  image: ghcr.io/org/summarizer:v1.0
-  framework: adk
+  image: ghcr.io/acme/summarizer:v1.0
   language: python
+  framework: adk
   modelProvider: Gemini
   modelName: gemini-2.0-flash
   description: "An agent that summarizes documents using Gemini"
+  status: active
   mcpServers:
     - type: registry
       name: fetch
-      registryServerName: com.example/fetch
+      registryURL: http://localhost:12121
+      registryServerName: acme/fetch
       registryServerVersion: "1.0"
   skills:
     - name: summarize
-      registrySkillName: com.example/summarize
+      registryURL: http://localhost:12121
+      registrySkillName: acme/summarize
       registrySkillVersion: "1.0"
+  prompts:
+    - name: system-prompt
+      registryURL: http://localhost:12121
+      registryPromptName: acme/system-prompt
+      registryPromptVersion: "1.0"
