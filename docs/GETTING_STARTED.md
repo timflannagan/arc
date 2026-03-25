@@ -195,15 +195,13 @@ arc get agent my-agent -o yaml
 
 ## Configuration
 
-`arc` uses a kubeconfig-style config file at `~/.arc/config`.
+`arc` uses a kubeconfig-style config file at `~/.arc/config` to manage
+multiple registry instances. This is how you switch between a local
+development registry and a remote (e.g. Kubernetes-hosted) one.
 
-### View current config
+### Default config
 
-```bash
-arc config view
-```
-
-Default output:
+On first run, `arc` creates a default config pointing at localhost:
 
 ```yaml
 current-context: local
@@ -215,34 +213,72 @@ contexts:
     cluster: local
 ```
 
-### Add a production registry
+View it with:
 
 ```bash
-arc config set-cluster prod --server https://registry.example.com
-arc config set-context prod --cluster prod --token "${MY_TOKEN}"
-arc config use-context prod
+arc config view
 ```
 
-### Switch between registries
+### Adding a remote registry
+
+Say you have a registry deployed on Kubernetes at
+`https://registry.internal.example.com`:
 
 ```bash
-arc config use-context local       # local dev
-arc config use-context prod        # production
+# Register the cluster
+arc config set-cluster kube --server https://registry.internal.example.com
+
+# Create a context with auth
+arc config set-context kube --cluster kube --token "${MY_TOKEN}"
 ```
+
+Your config now has both:
+
+```yaml
+current-context: local
+clusters:
+  - name: local
+    server: http://localhost:12121
+  - name: kube
+    server: https://registry.internal.example.com
+contexts:
+  - name: local
+    cluster: local
+  - name: kube
+    cluster: kube
+    token: <your-token>
+```
+
+### Switching between local and remote
+
+```bash
+arc config use-context kube     # point at remote Kubernetes registry
+arc get agents                  # lists agents on remote
+
+arc config use-context local    # back to localhost
+arc get agents                  # lists agents locally
+```
+
+This also affects `apply`, `pull`, `import`, `export`, and `delete` —
+all registry operations go to whichever context is active.
 
 ### Override per-command
 
+Skip context switching for one-off commands:
+
 ```bash
-arc get agents --server https://registry.example.com --token "${MY_TOKEN}"
+arc get agents --server https://registry.internal.example.com --token "${MY_TOKEN}"
 ```
 
 ### Environment variables
 
 ```bash
-export ARC_SERVER=https://registry.example.com
+export ARC_SERVER=https://registry.internal.example.com
 export ARC_TOKEN=my-token
-arc get agents    # uses env vars
+arc get agents    # uses env vars, ignores config context
 ```
+
+Environment variables take precedence over the config file.
 
 ## Output Formats
 
