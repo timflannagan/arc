@@ -225,11 +225,9 @@ Say you have a registry deployed on Kubernetes at
 `https://registry.internal.example.com`:
 
 ```bash
-# Register the cluster
-arc config set-cluster kube --server https://registry.internal.example.com
-
-# Create a context with auth
-arc config set-context kube --cluster kube --token "${MY_TOKEN}"
+arc config set-context kube \
+  --server https://registry.internal.example.com \
+  --token "${MY_TOKEN}"
 ```
 
 Your config now has both:

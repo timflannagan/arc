@@ -18,7 +18,6 @@ func newConfigCmd() *cobra.Command {
 	cmd.AddCommand(
 		newConfigViewCmd(),
 		newConfigUseContextCmd(),
-		newConfigSetClusterCmd(),
 		newConfigSetContextCmd(),
 	)
 
@@ -77,62 +76,15 @@ func newConfigUseContextCmd() *cobra.Command {
 	}
 }
 
-func newConfigSetClusterCmd() *cobra.Command {
-	var server string
-
-	cmd := &cobra.Command{
-		Use:   "set-cluster NAME",
-		Short: "Add or update a cluster entry",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			path := flagConfig
-			if path == "" {
-				path = config.DefaultPath()
-			}
-
-			cfg, err := config.Load(path)
-			if err != nil {
-				return err
-			}
-
-			// Update existing or append new.
-			found := false
-			for i := range cfg.Clusters {
-				if cfg.Clusters[i].Name == args[0] {
-					cfg.Clusters[i].Server = server
-					found = true
-					break
-				}
-			}
-			if !found {
-				cfg.Clusters = append(cfg.Clusters, config.Cluster{
-					Name:   args[0],
-					Server: server,
-				})
-			}
-
-			if err := config.Save(path, cfg); err != nil {
-				return err
-			}
-			fmt.Printf("Cluster %q set to %s\n", args[0], server)
-			return nil
-		},
-	}
-
-	cmd.Flags().StringVar(&server, "server", "", "Registry server URL")
-	cmd.MarkFlagRequired("server")
-
-	return cmd
-}
-
 func newConfigSetContextCmd() *cobra.Command {
-	var cluster, token string
+	var server, token string
 
 	cmd := &cobra.Command{
 		Use:   "set-context NAME",
-		Short: "Add or update a context entry",
+		Short: "Add or update a context with server and auth",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			name := args[0]
 			path := flagConfig
 			if path == "" {
 				path = config.DefaultPath()
@@ -143,23 +95,40 @@ func newConfigSetContextCmd() *cobra.Command {
 				return err
 			}
 
-			found := false
-			for i := range cfg.Contexts {
-				if cfg.Contexts[i].Name == args[0] {
-					if cluster != "" {
-						cfg.Contexts[i].Cluster = cluster
+			// Upsert the cluster entry (keyed by context name).
+			if server != "" {
+				clusterFound := false
+				for i := range cfg.Clusters {
+					if cfg.Clusters[i].Name == name {
+						cfg.Clusters[i].Server = server
+						clusterFound = true
+						break
 					}
+				}
+				if !clusterFound {
+					cfg.Clusters = append(cfg.Clusters, config.Cluster{
+						Name:   name,
+						Server: server,
+					})
+				}
+			}
+
+			// Upsert the context entry.
+			ctxFound := false
+			for i := range cfg.Contexts {
+				if cfg.Contexts[i].Name == name {
+					cfg.Contexts[i].Cluster = name
 					if token != "" {
 						cfg.Contexts[i].Token = token
 					}
-					found = true
+					ctxFound = true
 					break
 				}
 			}
-			if !found {
+			if !ctxFound {
 				cfg.Contexts = append(cfg.Contexts, config.Context{
-					Name:    args[0],
-					Cluster: cluster,
+					Name:    name,
+					Cluster: name,
 					Token:   token,
 				})
 			}
@@ -167,13 +136,17 @@ func newConfigSetContextCmd() *cobra.Command {
 			if err := config.Save(path, cfg); err != nil {
 				return err
 			}
-			fmt.Printf("Context %q configured\n", args[0])
+			if server != "" {
+				fmt.Printf("Context %q configured (server: %s)\n", name, server)
+			} else {
+				fmt.Printf("Context %q updated\n", name)
+			}
 			return nil
 		},
 	}
 
-	cmd.Flags().StringVar(&cluster, "cluster", "", "Cluster name to reference")
-	cmd.Flags().StringVar(&token, "token", "", "Auth token for this context")
+	cmd.Flags().StringVar(&server, "server", "", "Registry server URL")
+	cmd.Flags().StringVar(&token, "token", "", "Auth token")
 
 	return cmd
 }

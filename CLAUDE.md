@@ -14,7 +14,7 @@ make install  # installs to $GOPATH/bin
 - **Resource registry pattern** (`pkg/resource/`): Each resource type (Agent, MCPServer, Skill, Prompt) implements `ResourceType` and self-registers via `init()`. Adding a new type = one file.
 - **Scheme** (`pkg/scheme/`): Parses YAML with `apiVersion`/`kind` dispatch, supports multi-document files.
 - **Client** (`pkg/client/`): Thin HTTP client for the registry v0 API. Intentionally decoupled from the agentregistry module.
-- **Config** (`pkg/config/`): kubeconfig-style config at `~/.arc/config` with clusters, contexts, and auth.
+- **Config** (`pkg/config/`): kubeconfig-style config at `~/.arc/config`. `set-context` is the single command for adding registries (manages clusters internally).
 - **Scaffold** (`pkg/scaffold/`): Project scaffolding templates for each resource type. Used by `arc init`.
 - **Commands** (`pkg/cmd/`): Cobra command tree. Local ops: `init`, `build`. Registry ops: `apply`, `get`, `pull`, `delete`, `import`, `export`. Config: `config`.
 - **Printer** (`pkg/printer/`): Output formatting (table, YAML, JSON) via `-o` flag.
