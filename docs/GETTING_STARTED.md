@@ -5,7 +5,7 @@ servers, skills, and prompts — against an agent registry.
 
 ## Prerequisites
 
-You need a running agent registry instance. Two options:
+You need a running agent registry instance. Three options:
 
 ### Option A: Local (Docker)
 
@@ -36,6 +36,8 @@ arctl daemon stop --purge  # stop and delete all data
 
 ### Option B: Kubernetes (Helm)
 
+Install the published chart from the OCI registry:
+
 ```bash
 # Quickstart with bundled PostgreSQL
 helm install agentregistry oci://ghcr.io/agentregistry-dev/agentregistry/charts/agentregistry \
@@ -52,6 +54,63 @@ helm install agentregistry oci://ghcr.io/agentregistry-dev/agentregistry/charts/
   --set config.jwtPrivateKey=$(openssl rand -hex 32) \
   --set database.postgres.bundled.enabled=false \
   --set database.postgres.url="postgres://user:pass@host:5432/dbname?sslmode=require"
+```
+
+### Option C: From Source (Kind)
+
+Build and run everything locally from the
+[agentregistry](https://github.com/agentregistry-dev/agentregistry) repo:
+
+```bash
+git clone https://github.com/agentregistry-dev/agentregistry.git
+cd agentregistry
+```
+
+**Docker backend** (fastest, no Kubernetes):
+
+```bash
+make run-docker
+```
+
+This builds the server and agent-gateway images, starts them via Docker
+Compose alongside PostgreSQL, and exposes the API on `http://localhost:12121`.
+
+**Kind cluster** (full Kubernetes environment):
+
+```bash
+make run-k8s    # or equivalently: make run
+```
+
+This creates a local Kind cluster, deploys MetalLB, installs kagent CRDs,
+builds + pushes images to a local registry, and helm-installs the agent
+registry into the cluster.
+
+Individual steps if you want more control:
+
+```bash
+make create-kind-cluster      # Kind + MetalLB + local image registry
+make docker                   # build server + agent-gateway images
+make install-agentregistry    # helm install into the Kind cluster
+```
+
+To skip image rebuilds (e.g. after a code change that only touches the
+chart):
+
+```bash
+make install-agentregistry BUILD=false
+```
+
+**Tear down** either backend:
+
+```bash
+make down    # stops daemon + deletes Kind cluster
+```
+
+**Build the CLI only** (no cluster needed):
+
+```bash
+make build-cli    # outputs bin/arctl
+make build        # builds UI + CLI
 ```
 
 ## Install `arc`
