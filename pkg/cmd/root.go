@@ -97,6 +97,8 @@ to inspect and manage resources.`,
 		newGetCmd(),
 		newPullCmd(),
 		newDeleteCmd(),
+		newExportCmd(),
+		newImportCmd(),
 		newVersionCmd(),
 		newConfigCmd(),
 	)

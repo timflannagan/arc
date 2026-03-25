@@ -203,6 +203,35 @@ ar get agents -o yaml      # YAML
 ar get agents -o json      # JSON
 ```
 
+## Pulling Resources
+
+Fetch a resource from the registry as a local YAML file (inverse of `apply`):
+
+```bash
+ar pull agent my-agent                    # writes ./my-agent/agent.yaml
+ar pull mcpserver acme/fetch              # writes ./fetch/mcpserver.yaml
+ar pull agent my-agent --version 1.0.0    # specific version
+ar pull agent my-agent -d ./staging/      # custom output directory
+```
+
+## Import / Export
+
+Bulk operations for migrating or seeding registries:
+
+```bash
+# Export everything to a file
+ar export -f catalog.yaml
+
+# Export specific types
+ar export agents mcpservers -f partial.yaml
+
+# Export to stdout (pipe-friendly)
+ar export agents | ar import -f /dev/stdin --server https://other-registry.example.com
+
+# Import into a registry
+ar import -f catalog.yaml
+```
+
 ## Deleting Resources
 
 ```bash
