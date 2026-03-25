@@ -22,7 +22,7 @@ func (a *AgentType) TableRow(data map[string]any) []string {
 		agent = data
 	}
 	return []string{
-		str(agent, "agentName"),
+		str(agent, "name"),
 		str(agent, "version"),
 		str(agent, "framework"),
 		str(agent, "modelName"),
@@ -32,15 +32,15 @@ func (a *AgentType) TableRow(data map[string]any) []string {
 
 func (a *AgentType) ToCreatePayload(r *Resource) (any, error) {
 	payload := map[string]any{
-		"agentName": r.Metadata.Name,
-		"version":   r.Metadata.Version,
+		"name":    r.Metadata.Name,
+		"version": r.Metadata.Version,
 	}
 	// Copy spec fields into payload.
 	for k, v := range r.Spec {
 		payload[k] = v
 	}
 	// Ensure name and version from metadata take precedence.
-	payload["agentName"] = r.Metadata.Name
+	payload["name"] = r.Metadata.Name
 	if r.Metadata.Version != "" {
 		payload["version"] = r.Metadata.Version
 	}
@@ -62,13 +62,13 @@ func (a *AgentType) ExtractList(response map[string]any) []map[string]any {
 
 func (a *AgentType) ToResource(response map[string]any) *Resource {
 	item := a.ExtractItem(response)
-	name := str(item, "agentName")
+	name := str(item, "name")
 	version := str(item, "version")
 
 	spec := make(map[string]any)
 	for k, v := range item {
 		switch k {
-		case "agentName", "version":
+		case "name", "version":
 			// These go in metadata, not spec.
 		default:
 			spec[k] = v
