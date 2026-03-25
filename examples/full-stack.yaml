@@ -1,0 +1,44 @@
+apiVersion: ar.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: com.example/fetch
+  version: "1.0.0"
+spec:
+  title: Fetch Server
+  description: "Fetches content from URLs"
+  status: active
+---
+apiVersion: ar.dev/v1alpha1
+kind: Skill
+metadata:
+  name: com.example/summarize
+  version: "1.0.0"
+spec:
+  title: Summarization
+  category: nlp
+  description: "Summarizes long text into concise form"
+  status: active
+---
+apiVersion: ar.dev/v1alpha1
+kind: Agent
+metadata:
+  name: my-summarizer
+  version: "1.0.0"
+  labels:
+    team: platform
+spec:
+  image: ghcr.io/org/summarizer:v1.0
+  framework: adk
+  language: python
+  modelProvider: Gemini
+  modelName: gemini-2.0-flash
+  description: "An agent that summarizes documents using Gemini"
+  mcpServers:
+    - type: registry
+      name: fetch
+      registryServerName: com.example/fetch
+      registryServerVersion: "1.0"
+  skills:
+    - name: summarize
+      registrySkillName: com.example/summarize
+      registrySkillVersion: "1.0"
