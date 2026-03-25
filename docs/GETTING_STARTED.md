@@ -3,7 +3,58 @@
 `arc` is a kubectl-style CLI for managing agentic artifacts — agents, MCP
 servers, skills, and prompts — against an agent registry.
 
-## Install
+## Prerequisites
+
+You need a running agent registry instance. Two options:
+
+### Option A: Local (Docker)
+
+The quickest path. Install `arctl` and start the daemon:
+
+```bash
+# Install arctl
+curl -fsSL https://raw.githubusercontent.com/agentregistry-dev/agentregistry/main/scripts/get-arctl | bash
+
+# Start the registry (runs PostgreSQL + registry server via Docker Compose)
+arctl daemon start
+
+# Verify it's running
+curl -s http://localhost:12121/ping
+```
+
+This starts:
+- **Registry API/UI** on `http://localhost:12121`
+- **PostgreSQL** (pgvector) on port 5432
+- **MCP server** on port 31313
+
+Stop when done:
+
+```bash
+arctl daemon stop          # stop containers (preserves data)
+arctl daemon stop --purge  # stop and delete all data
+```
+
+### Option B: Kubernetes (Helm)
+
+```bash
+# Quickstart with bundled PostgreSQL
+helm install agentregistry oci://ghcr.io/agentregistry-dev/agentregistry/charts/agentregistry \
+  --set config.jwtPrivateKey=$(openssl rand -hex 32)
+
+# Port-forward to access locally
+kubectl port-forward svc/agentregistry 12121:12121
+```
+
+For production with an external database:
+
+```bash
+helm install agentregistry oci://ghcr.io/agentregistry-dev/agentregistry/charts/agentregistry \
+  --set config.jwtPrivateKey=$(openssl rand -hex 32) \
+  --set database.postgres.bundled.enabled=false \
+  --set database.postgres.url="postgres://user:pass@host:5432/dbname?sslmode=require"
+```
+
+## Install `arc`
 
 ```bash
 make build          # produces bin/arc
@@ -17,7 +68,7 @@ The happy path has three stages: **init**, **build**, **apply**.
 ### 1. Scaffold a new agent
 
 ```bash
-arc initagent adk python my-agent \
+arc init agent adk python my-agent \
   --model-provider openai \
   --model-name gpt-4o \
   --description "My first agent"
@@ -63,10 +114,10 @@ arc get agent my-agent -o yaml       # full YAML output
 
 | Kind | `arc init` | `arc build` | Description |
 |------|-----------|------------|-------------|
-| `Agent` | `arc initagent FRAMEWORK LANG NAME` | `arc build ./NAME` | An AI agent with model, skills, and MCP servers |
-| `MCPServer` | `arc initmcpserver NAME` | `arc build ./NAME` | An MCP server providing tools/resources |
-| `Skill` | `arc initskill NAME` | N/A (no container) | A reusable skill definition (SKILL.md) |
-| `Prompt` | `arc initprompt NAME` | N/A (no container) | A versioned prompt template |
+| `Agent` | `arc init agent FRAMEWORK LANG NAME` | `arc build ./NAME` | An AI agent with model, skills, and MCP servers |
+| `MCPServer` | `arc init mcpserver NAME` | `arc build ./NAME` | An MCP server providing tools/resources |
+| `Skill` | `arc init skill NAME` | N/A (no container) | A reusable skill definition (SKILL.md) |
+| `Prompt` | `arc init prompt NAME` | N/A (no container) | A versioned prompt template |
 
 ## Working with YAML Resources
 
@@ -114,10 +165,10 @@ Here's the end-to-end workflow for building an agent with dependencies:
 
 ```bash
 # 1. Scaffold the MCP server
-arc initmcpserver my-tools --transport stdio
+arc init mcpserver my-tools --transport stdio
 
 # 2. Scaffold the agent
-arc initagent adk python my-agent --model-provider openai --model-name gpt-4o
+arc init agent adk python my-agent --model-provider openai --model-name gpt-4o
 
 # 3. Edit my-agent/agent.yaml to reference the MCP server:
 #    mcpServers:
@@ -249,5 +300,5 @@ arc completion bash > /etc/bash_completion.d/arc
 source <(arc completion zsh)
 
 # Or install permanently
-arc completion zsh > "${fpath[1]}/_ar"
+arc completion zsh > "${fpath[1]}/_arc"
 ```
