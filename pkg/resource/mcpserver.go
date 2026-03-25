@@ -53,3 +53,25 @@ func (m *MCPServerType) ExtractItem(response map[string]any) map[string]any {
 func (m *MCPServerType) ExtractList(response map[string]any) []map[string]any {
 	return extractListField(response, "servers")
 }
+
+func (m *MCPServerType) ToResource(response map[string]any) *Resource {
+	item := m.ExtractItem(response)
+	name := str(item, "name")
+	version := str(item, "version")
+
+	spec := make(map[string]any)
+	for k, v := range item {
+		switch k {
+		case "name", "version":
+		default:
+			spec[k] = v
+		}
+	}
+
+	return &Resource{
+		APIVersion: "ar.dev/v1alpha1",
+		Kind:       "MCPServer",
+		Metadata:   Metadata{Name: name, Version: version},
+		Spec:       spec,
+	}
+}

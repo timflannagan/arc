@@ -56,6 +56,10 @@ type ResourceType interface {
 
 	// ExtractList pulls the list of resource objects from a list API response.
 	ExtractList(response map[string]any) []map[string]any
+
+	// ToResource converts an API response into a Resource for YAML serialization.
+	// This is the inverse of ToCreatePayload — used by pull/export.
+	ToResource(response map[string]any) *Resource
 }
 
 var (

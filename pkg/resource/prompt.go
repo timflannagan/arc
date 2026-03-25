@@ -53,3 +53,25 @@ func (p *PromptType) ExtractItem(response map[string]any) map[string]any {
 func (p *PromptType) ExtractList(response map[string]any) []map[string]any {
 	return extractListField(response, "prompts")
 }
+
+func (p *PromptType) ToResource(response map[string]any) *Resource {
+	item := p.ExtractItem(response)
+	name := str(item, "name")
+	version := str(item, "version")
+
+	spec := make(map[string]any)
+	for k, v := range item {
+		switch k {
+		case "name", "version":
+		default:
+			spec[k] = v
+		}
+	}
+
+	return &Resource{
+		APIVersion: "ar.dev/v1alpha1",
+		Kind:       "Prompt",
+		Metadata:   Metadata{Name: name, Version: version},
+		Spec:       spec,
+	}
+}

@@ -60,6 +60,29 @@ func (a *AgentType) ExtractList(response map[string]any) []map[string]any {
 	return extractListField(response, "agents")
 }
 
+func (a *AgentType) ToResource(response map[string]any) *Resource {
+	item := a.ExtractItem(response)
+	name := str(item, "agentName")
+	version := str(item, "version")
+
+	spec := make(map[string]any)
+	for k, v := range item {
+		switch k {
+		case "agentName", "version":
+			// These go in metadata, not spec.
+		default:
+			spec[k] = v
+		}
+	}
+
+	return &Resource{
+		APIVersion: "ar.dev/v1alpha1",
+		Kind:       "Agent",
+		Metadata:   Metadata{Name: name, Version: version},
+		Spec:       spec,
+	}
+}
+
 // --- helpers shared across resource types ---
 
 func str(data map[string]any, key string) string {
