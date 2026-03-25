@@ -17,16 +17,16 @@ func newExportCmd() *cobra.Command {
 		Short: "Export all resources from the registry to a YAML file",
 		Long: `Export all resources (agents, MCP servers, skills, prompts) from the
 registry into a single multi-document YAML file. This file can be used
-with 'ar import' to restore or seed another registry instance.`,
+with 'arc import' to restore or seed another registry instance.`,
 		Example: `  # Export to stdout
-  ar export
+  arc export
 
   # Export to a file
-  ar export -f catalog.yaml
+  arc export -f catalog.yaml
 
   # Export specific types
-  ar export agents
-  ar export mcpservers skills`,
+  arc export agents
+  arc export mcpservers skills`,
 		Args: cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Determine which resource types to export.

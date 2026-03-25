@@ -1,4 +1,4 @@
-// Package cmd defines the cobra command tree for ar.
+// Package cmd defines the cobra command tree for arc.
 package cmd
 
 import (
@@ -31,12 +31,12 @@ var (
 	flagConfig string
 )
 
-// Root returns the top-level ar command.
+// Root returns the top-level arc command.
 func Root() *cobra.Command {
 	root := &cobra.Command{
-		Use:   "ar",
+		Use:   "arc",
 		Short: "Declarative CLI for the agent registry",
-		Long: `ar is a kubectl-style CLI for managing agents, MCP servers, skills,
+		Long: `arc is a kubectl-style CLI for managing agents, MCP servers, skills,
 and prompts in an agent registry.
 
 Define resources in YAML and apply them declaratively, or use get/delete
@@ -63,12 +63,12 @@ to inspect and manage resources.`,
 
 			// Also check env vars as overrides.
 			if flagServer == "" {
-				if envServer := os.Getenv("AR_SERVER"); envServer != "" {
+				if envServer := os.Getenv("ARC_SERVER"); envServer != "" {
 					flagServer = envServer
 				}
 			}
 			if flagToken == "" {
-				if envToken := os.Getenv("AR_TOKEN"); envToken != "" {
+				if envToken := os.Getenv("ARC_TOKEN"); envToken != "" {
 					flagToken = envToken
 				}
 			}
@@ -87,7 +87,7 @@ to inspect and manage resources.`,
 	root.PersistentFlags().StringVar(&flagServer, "server", "", "Registry server URL (overrides config)")
 	root.PersistentFlags().StringVar(&flagToken, "token", "", "Auth token (overrides config)")
 	root.PersistentFlags().StringVarP(&flagOutput, "output", "o", "table", "Output format: table, yaml, json")
-	root.PersistentFlags().StringVar(&flagConfig, "config", "", "Config file path (default ~/.ar/config)")
+	root.PersistentFlags().StringVar(&flagConfig, "config", "", "Config file path (default ~/.arc/config)")
 
 	// Register subcommands.
 	root.AddCommand(
@@ -109,7 +109,7 @@ to inspect and manage resources.`,
 func newVersionCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
-		Short: "Print the ar version",
+		Short: "Print the arc version",
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println(Version)
 		},

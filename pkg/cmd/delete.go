@@ -16,10 +16,10 @@ func newDeleteCmd() *cobra.Command {
 		Long: `Delete a resource by type and name. A version must be specified
 since the registry tracks versioned resources.`,
 		Example: `  # Delete a specific agent version
-  ar delete agent my-summarizer --version 1.0.0
+  arc delete agent my-summarizer --version 1.0.0
 
   # Delete an MCP server version
-  ar delete mcpserver my-server --version 2.1.0`,
+  arc delete mcpserver my-server --version 2.1.0`,
 		Args: cobra.ExactArgs(2),
 		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			if len(args) == 0 {

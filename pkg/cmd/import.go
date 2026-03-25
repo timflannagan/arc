@@ -14,15 +14,15 @@ func newImportCmd() *cobra.Command {
 		Use:   "import -f FILE",
 		Short: "Import resources into the registry from a YAML file",
 		Long: `Import resources from a multi-document YAML file into the registry.
-This is the bulk counterpart of 'ar apply' and the inverse of 'ar export'.
+This is the bulk counterpart of 'arc apply' and the inverse of 'arc export'.
 
 Resources are created in document order, so list dependencies before
 the resources that reference them.`,
 		Example: `  # Import from an export file
-  ar import -f catalog.yaml
+  arc import -f catalog.yaml
 
   # Import from a full-stack definition
-  ar import -f full-stack.yaml`,
+  arc import -f full-stack.yaml`,
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			filePaths, err := cmd.Flags().GetStringArray("filename")

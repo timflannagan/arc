@@ -1,13 +1,13 @@
-# Getting Started with `ar`
+# Getting Started with `arc`
 
-`ar` is a kubectl-style CLI for managing agentic artifacts — agents, MCP
+`arc` is a kubectl-style CLI for managing agentic artifacts — agents, MCP
 servers, skills, and prompts — against an agent registry.
 
 ## Install
 
 ```bash
-make build          # produces bin/ar
-make install        # installs to $GOPATH/bin/ar
+make build          # produces bin/arc
+make install        # installs to $GOPATH/bin/arc
 ```
 
 ## Quick Start
@@ -17,7 +17,7 @@ The happy path has three stages: **init**, **build**, **apply**.
 ### 1. Scaffold a new agent
 
 ```bash
-ar init agent adk python my-agent \
+arc initagent adk python my-agent \
   --model-provider openai \
   --model-name gpt-4o \
   --description "My first agent"
@@ -36,37 +36,37 @@ my-agent/
 ### 2. Build the container image
 
 ```bash
-ar build ./my-agent
+arc build ./my-agent
 ```
 
 To tag and push to a remote registry:
 
 ```bash
-ar build ./my-agent --image ghcr.io/myorg/my-agent:v1.0 --push
+arc build ./my-agent --image ghcr.io/myorg/my-agent:v1.0 --push
 ```
 
 ### 3. Publish to the registry
 
 ```bash
-ar apply -f my-agent/agent.yaml
+arc apply -f my-agent/agent.yaml
 ```
 
 ### 4. Verify
 
 ```bash
-ar get agents                       # list all agents
-ar get agent my-agent               # show details
-ar get agent my-agent -o yaml       # full YAML output
+arc get agents                       # list all agents
+arc get agent my-agent               # show details
+arc get agent my-agent -o yaml       # full YAML output
 ```
 
 ## Resource Types
 
-| Kind | `ar init` | `ar build` | Description |
+| Kind | `arc init` | `arc build` | Description |
 |------|-----------|------------|-------------|
-| `Agent` | `ar init agent FRAMEWORK LANG NAME` | `ar build ./NAME` | An AI agent with model, skills, and MCP servers |
-| `MCPServer` | `ar init mcpserver NAME` | `ar build ./NAME` | An MCP server providing tools/resources |
-| `Skill` | `ar init skill NAME` | N/A (no container) | A reusable skill definition (SKILL.md) |
-| `Prompt` | `ar init prompt NAME` | N/A (no container) | A versioned prompt template |
+| `Agent` | `arc initagent FRAMEWORK LANG NAME` | `arc build ./NAME` | An AI agent with model, skills, and MCP servers |
+| `MCPServer` | `arc initmcpserver NAME` | `arc build ./NAME` | An MCP server providing tools/resources |
+| `Skill` | `arc initskill NAME` | N/A (no container) | A reusable skill definition (SKILL.md) |
+| `Prompt` | `arc initprompt NAME` | N/A (no container) | A versioned prompt template |
 
 ## Working with YAML Resources
 
@@ -87,7 +87,7 @@ spec:
 Define an agent and its dependencies in a single file, separated by `---`:
 
 ```bash
-ar apply -f examples/full-stack.yaml
+arc apply -f examples/full-stack.yaml
 ```
 
 See [examples/full-stack.yaml](../examples/full-stack.yaml) for a complete
@@ -96,16 +96,16 @@ example with an MCP server, skill, prompt, and agent.
 ### Individual resource files
 
 ```bash
-ar apply -f examples/mcpserver.yaml
-ar apply -f examples/skill.yaml
-ar apply -f examples/prompt.yaml
-ar apply -f examples/agent.yaml
+arc apply -f examples/mcpserver.yaml
+arc apply -f examples/skill.yaml
+arc apply -f examples/prompt.yaml
+arc apply -f examples/agent.yaml
 ```
 
 Or apply multiple files at once:
 
 ```bash
-ar apply -f examples/mcpserver.yaml -f examples/skill.yaml -f examples/agent.yaml
+arc apply -f examples/mcpserver.yaml -f examples/skill.yaml -f examples/agent.yaml
 ```
 
 ## Full Agent Lifecycle
@@ -114,10 +114,10 @@ Here's the end-to-end workflow for building an agent with dependencies:
 
 ```bash
 # 1. Scaffold the MCP server
-ar init mcpserver my-tools --transport stdio
+arc initmcpserver my-tools --transport stdio
 
 # 2. Scaffold the agent
-ar init agent adk python my-agent --model-provider openai --model-name gpt-4o
+arc initagent adk python my-agent --model-provider openai --model-name gpt-4o
 
 # 3. Edit my-agent/agent.yaml to reference the MCP server:
 #    mcpServers:
@@ -127,29 +127,29 @@ ar init agent adk python my-agent --model-provider openai --model-name gpt-4o
 #        registryServerVersion: "0.1.0"
 
 # 4. Build both images
-ar build ./my-tools
-ar build ./my-agent
+arc build ./my-tools
+arc build ./my-agent
 
 # 5. Publish the MCP server first (it's a dependency)
-ar apply -f my-tools/mcpserver.yaml
+arc apply -f my-tools/mcpserver.yaml
 
 # 6. Publish the agent
-ar apply -f my-agent/agent.yaml
+arc apply -f my-agent/agent.yaml
 
 # 7. Verify everything is registered
-ar get mcpservers
-ar get agents
-ar get agent my-agent -o yaml
+arc get mcpservers
+arc get agents
+arc get agent my-agent -o yaml
 ```
 
 ## Configuration
 
-`ar` uses a kubeconfig-style config file at `~/.ar/config`.
+`arc` uses a kubeconfig-style config file at `~/.arc/config`.
 
 ### View current config
 
 ```bash
-ar config view
+arc config view
 ```
 
 Default output:
@@ -167,30 +167,30 @@ contexts:
 ### Add a production registry
 
 ```bash
-ar config set-cluster prod --server https://registry.example.com
-ar config set-context prod --cluster prod --token "${MY_TOKEN}"
-ar config use-context prod
+arc config set-cluster prod --server https://registry.example.com
+arc config set-context prod --cluster prod --token "${MY_TOKEN}"
+arc config use-context prod
 ```
 
 ### Switch between registries
 
 ```bash
-ar config use-context local       # local dev
-ar config use-context prod        # production
+arc config use-context local       # local dev
+arc config use-context prod        # production
 ```
 
 ### Override per-command
 
 ```bash
-ar get agents --server https://registry.example.com --token "${MY_TOKEN}"
+arc get agents --server https://registry.example.com --token "${MY_TOKEN}"
 ```
 
 ### Environment variables
 
 ```bash
-export AR_SERVER=https://registry.example.com
-export AR_TOKEN=my-token
-ar get agents    # uses env vars
+export ARC_SERVER=https://registry.example.com
+export ARC_TOKEN=my-token
+arc get agents    # uses env vars
 ```
 
 ## Output Formats
@@ -198,9 +198,9 @@ ar get agents    # uses env vars
 All `get` commands support `-o` for output format:
 
 ```bash
-ar get agents              # table (default)
-ar get agents -o yaml      # YAML
-ar get agents -o json      # JSON
+arc get agents              # table (default)
+arc get agents -o yaml      # YAML
+arc get agents -o json      # JSON
 ```
 
 ## Pulling Resources
@@ -208,10 +208,10 @@ ar get agents -o json      # JSON
 Fetch a resource from the registry as a local YAML file (inverse of `apply`):
 
 ```bash
-ar pull agent my-agent                    # writes ./my-agent/agent.yaml
-ar pull mcpserver acme/fetch              # writes ./fetch/mcpserver.yaml
-ar pull agent my-agent --version 1.0.0    # specific version
-ar pull agent my-agent -d ./staging/      # custom output directory
+arc pull agent my-agent                    # writes ./my-agent/agent.yaml
+arc pull mcpserver acme/fetch              # writes ./fetch/mcpserver.yaml
+arc pull agent my-agent --version 1.0.0    # specific version
+arc pull agent my-agent -d ./staging/      # custom output directory
 ```
 
 ## Import / Export
@@ -220,34 +220,34 @@ Bulk operations for migrating or seeding registries:
 
 ```bash
 # Export everything to a file
-ar export -f catalog.yaml
+arc export -f catalog.yaml
 
 # Export specific types
-ar export agents mcpservers -f partial.yaml
+arc export agents mcpservers -f partial.yaml
 
 # Export to stdout (pipe-friendly)
-ar export agents | ar import -f /dev/stdin --server https://other-registry.example.com
+arc export agents | arc import -f /dev/stdin --server https://other-registry.example.com
 
 # Import into a registry
-ar import -f catalog.yaml
+arc import -f catalog.yaml
 ```
 
 ## Deleting Resources
 
 ```bash
-ar delete agent my-agent --version 1.0.0
-ar delete mcpserver my-server --version 0.1.0
+arc delete agent my-agent --version 1.0.0
+arc delete mcpserver my-server --version 0.1.0
 ```
 
 ## Shell Completion
 
 ```bash
 # Bash
-ar completion bash > /etc/bash_completion.d/ar
+arc completion bash > /etc/bash_completion.d/arc
 
 # Zsh (add to ~/.zshrc)
-source <(ar completion zsh)
+source <(arc completion zsh)
 
 # Or install permanently
-ar completion zsh > "${fpath[1]}/_ar"
+arc completion zsh > "${fpath[1]}/_ar"
 ```

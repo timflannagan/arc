@@ -20,13 +20,13 @@ YAML files containing resource definitions and creates or updates them.
 
 Supports multi-document YAML files (--- separated) and multiple -f flags.`,
 		Example: `  # Apply a single agent
-  ar apply -f agent.yaml
+  arc apply -f agent.yaml
 
   # Apply multiple resources
-  ar apply -f agent.yaml -f mcpserver.yaml
+  arc apply -f agent.yaml -f mcpserver.yaml
 
   # Apply a multi-document file defining an agent with its dependencies
-  ar apply -f full-stack.yaml`,
+  arc apply -f full-stack.yaml`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(filePaths) == 0 {
 				return fmt.Errorf("at least one -f/--filename is required")

@@ -24,16 +24,16 @@ This is the inverse of apply — registry to local files.
 
 Useful for inspecting, forking, or templating off existing resources.`,
 		Example: `  # Pull an agent to ./my-agent/agent.yaml
-  ar pull agent my-agent
+  arc pull agent my-agent
 
   # Pull a specific version
-  ar pull agent my-agent --version 1.0.0
+  arc pull agent my-agent --version 1.0.0
 
   # Pull to a custom directory
-  ar pull agent my-agent -o ./staging/
+  arc pull agent my-agent -o ./staging/
 
   # Pull an MCP server
-  ar pull mcpserver acme/fetch`,
+  arc pull mcpserver acme/fetch`,
 		Args: cobra.ExactArgs(2),
 		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			if len(args) == 0 {

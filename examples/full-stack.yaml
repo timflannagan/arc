@@ -1,7 +1,7 @@
 # full-stack.yaml
 #
 # A single file defining an agent and all its dependencies.
-# Apply with: ar apply -f full-stack.yaml
+# Apply with: arc apply -f full-stack.yaml
 #
 # Resources are applied in document order, so define dependencies first:
 #   1. MCP servers and skills the agent references

@@ -29,16 +29,16 @@ Dockerfile in the given directory. Builds the image and optionally pushes it.
 
 This is a local-only operation — it does not contact the registry.`,
 		Example: `  # Build from a project directory
-  ar build ./my-agent
+  arc build ./my-agent
 
   # Build with a custom image tag
-  ar build ./my-agent --image ghcr.io/org/my-agent:v1.0
+  arc build ./my-agent --image ghcr.io/org/my-agent:v1.0
 
   # Build and push
-  ar build ./my-agent --image ghcr.io/org/my-agent:v1.0 --push
+  arc build ./my-agent --image ghcr.io/org/my-agent:v1.0 --push
 
   # Build for a specific platform
-  ar build ./my-agent --platform linux/amd64`,
+  arc build ./my-agent --platform linux/amd64`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			dir := args[0]
@@ -102,7 +102,7 @@ This is a local-only operation — it does not contact the registry.`,
 			}
 
 			fmt.Println("\nNext steps:")
-			fmt.Printf("  ar apply -f %s\n", yamlFile)
+			fmt.Printf("  arc apply -f %s\n", yamlFile)
 
 			return nil
 		},

@@ -1,5 +1,5 @@
-// Package config provides kubeconfig-style configuration for ar.
-// Config is stored at ~/.ar/config by default and supports multiple
+// Package config provides kubeconfig-style configuration for arc.
+// Config is stored at ~/.arc/config by default and supports multiple
 // clusters (registry instances) and contexts.
 package config
 
@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	DefaultConfigDir  = ".ar"
+	DefaultConfigDir  = ".arc"
 	DefaultConfigFile = "config"
 	DefaultServer     = "http://localhost:12121"
 )

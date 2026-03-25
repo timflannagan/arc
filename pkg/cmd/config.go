@@ -12,7 +12,7 @@ import (
 func newConfigCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "config",
-		Short: "Manage ar configuration",
+		Short: "Manage arc configuration",
 	}
 
 	cmd.AddCommand(

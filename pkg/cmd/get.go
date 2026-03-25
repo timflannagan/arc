@@ -18,16 +18,16 @@ func newGetCmd() *cobra.Command {
 If a NAME is provided, retrieves that specific resource.
 Otherwise, lists all resources of the given type.`,
 		Example: `  # List all agents
-  ar get agents
+  arc get agents
 
   # Get a specific agent
-  ar get agent my-summarizer
+  arc get agent my-summarizer
 
   # Get with YAML output
-  ar get agent my-summarizer -o yaml
+  arc get agent my-summarizer -o yaml
 
   # List MCP servers as JSON
-  ar get mcpservers -o json`,
+  arc get mcpservers -o json`,
 		Args: cobra.RangeArgs(1, 2),
 		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			if len(args) == 0 {

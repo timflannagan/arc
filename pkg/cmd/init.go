@@ -16,19 +16,19 @@ supporting files (Dockerfile, source code, etc.).
 
 This is a local-only operation — it does not contact the registry.`,
 		Example: `  # Scaffold a new ADK Python agent
-  ar init agent adk python my-summarizer
+  arc initagent adk python my-summarizer
 
   # Scaffold with options
-  ar init agent adk python my-agent --model-provider openai --model-name gpt-4o
+  arc initagent adk python my-agent --model-provider openai --model-name gpt-4o
 
   # Scaffold an MCP server
-  ar init mcpserver my-server
+  arc initmcpserver my-server
 
   # Scaffold a skill
-  ar init skill my-skill --category nlp
+  arc initskill my-skill --category nlp
 
   # Scaffold a prompt
-  ar init prompt my-system-prompt`,
+  arc initprompt my-system-prompt`,
 	}
 
 	cmd.AddCommand(
@@ -52,10 +52,10 @@ func newInitAgentCmd() *cobra.Command {
 Supported frameworks: adk
 Supported languages: python`,
 		Example: `  # ADK Python agent
-  ar init agent adk python my-agent
+  arc initagent adk python my-agent
 
   # With model options
-  ar init agent adk python my-agent --model-provider openai --model-name gpt-4o`,
+  arc initagent adk python my-agent --model-provider openai --model-name gpt-4o`,
 		Args: cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.Framework = args[0]
@@ -67,8 +67,8 @@ Supported languages: python`,
 			fmt.Printf("Agent project scaffolded in ./%s/\n", opts.Dir())
 			fmt.Println("\nNext steps:")
 			fmt.Printf("  1. cd %s && edit agent.yaml\n", opts.Dir())
-			fmt.Printf("  2. ar build ./%s\n", opts.Dir())
-			fmt.Printf("  3. ar apply -f %s/agent.yaml\n", opts.Dir())
+			fmt.Printf("  2. arc build ./%s\n", opts.Dir())
+			fmt.Printf("  3. arc apply -f %s/agent.yaml\n", opts.Dir())
 			return nil
 		},
 	}
@@ -98,8 +98,8 @@ func newInitMCPServerCmd() *cobra.Command {
 			fmt.Printf("MCP server project scaffolded in ./%s/\n", opts.Dir())
 			fmt.Println("\nNext steps:")
 			fmt.Printf("  1. cd %s && edit server.py\n", opts.Dir())
-			fmt.Printf("  2. ar build ./%s\n", opts.Dir())
-			fmt.Printf("  3. ar apply -f %s/mcpserver.yaml\n", opts.Dir())
+			fmt.Printf("  2. arc build ./%s\n", opts.Dir())
+			fmt.Printf("  3. arc apply -f %s/mcpserver.yaml\n", opts.Dir())
 			return nil
 		},
 	}
@@ -129,7 +129,7 @@ func newInitSkillCmd() *cobra.Command {
 			fmt.Printf("Skill project scaffolded in ./%s/\n", opts.Dir())
 			fmt.Println("\nNext steps:")
 			fmt.Printf("  1. cd %s && edit SKILL.md\n", opts.Dir())
-			fmt.Printf("  2. ar apply -f %s/skill.yaml\n", opts.Dir())
+			fmt.Printf("  2. arc apply -f %s/skill.yaml\n", opts.Dir())
 			return nil
 		},
 	}
@@ -157,7 +157,7 @@ func newInitPromptCmd() *cobra.Command {
 			fmt.Printf("Prompt scaffolded in ./%s/\n", opts.Dir())
 			fmt.Println("\nNext steps:")
 			fmt.Printf("  1. Edit %s/prompt.yaml\n", opts.Dir())
-			fmt.Printf("  2. ar apply -f %s/prompt.yaml\n", opts.Dir())
+			fmt.Printf("  2. arc apply -f %s/prompt.yaml\n", opts.Dir())
 			return nil
 		},
 	}
