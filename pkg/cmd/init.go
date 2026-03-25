@@ -15,11 +15,11 @@ func newInitCmd() *cobra.Command {
 supporting files (Dockerfile, source code, etc.).
 
 This is a local-only operation — it does not contact the registry.`,
-		Example: `  # Scaffold a new agent
-  ar init agent my-summarizer
+		Example: `  # Scaffold a new ADK Python agent
+  ar init agent adk python my-summarizer
 
   # Scaffold with options
-  ar init agent my-agent --model-provider openai --model-name gpt-4o
+  ar init agent adk python my-agent --model-provider openai --model-name gpt-4o
 
   # Scaffold an MCP server
   ar init mcpserver my-server
@@ -45,11 +45,22 @@ func newInitAgentCmd() *cobra.Command {
 	var opts scaffold.AgentOptions
 
 	cmd := &cobra.Command{
-		Use:   "agent NAME",
+		Use:   "agent FRAMEWORK LANGUAGE NAME",
 		Short: "Scaffold a new agent project",
-		Args:  cobra.ExactArgs(1),
+		Long: `Scaffold a new agent project with the given framework, language, and name.
+
+Supported frameworks: adk
+Supported languages: python`,
+		Example: `  # ADK Python agent
+  ar init agent adk python my-agent
+
+  # With model options
+  ar init agent adk python my-agent --model-provider openai --model-name gpt-4o`,
+		Args: cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			opts.Name = args[0]
+			opts.Framework = args[0]
+			opts.Language = args[1]
+			opts.Name = args[2]
 			if err := scaffold.Agent(opts); err != nil {
 				return err
 			}
@@ -64,8 +75,6 @@ func newInitAgentCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&opts.Version, "version", "0.1.0", "Initial version")
 	cmd.Flags().StringVar(&opts.Description, "description", "", "Agent description")
-	cmd.Flags().StringVar(&opts.Framework, "framework", "adk", "Agent framework")
-	cmd.Flags().StringVar(&opts.Language, "language", "python", "Programming language")
 	cmd.Flags().StringVar(&opts.ModelProvider, "model-provider", "Gemini", "Model provider")
 	cmd.Flags().StringVar(&opts.ModelName, "model-name", "gemini-2.0-flash", "Model name")
 	cmd.Flags().StringVar(&opts.Image, "image", "", "Docker image (default: localhost:5001/<name>:latest)")

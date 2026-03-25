@@ -17,7 +17,7 @@ The happy path has three stages: **init**, **build**, **apply**.
 ### 1. Scaffold a new agent
 
 ```bash
-ar init agent my-agent \
+ar init agent adk python my-agent \
   --model-provider openai \
   --model-name gpt-4o \
   --description "My first agent"
@@ -63,7 +63,7 @@ ar get agent my-agent -o yaml       # full YAML output
 
 | Kind | `ar init` | `ar build` | Description |
 |------|-----------|------------|-------------|
-| `Agent` | `ar init agent NAME` | `ar build ./NAME` | An AI agent with model, skills, and MCP servers |
+| `Agent` | `ar init agent FRAMEWORK LANG NAME` | `ar build ./NAME` | An AI agent with model, skills, and MCP servers |
 | `MCPServer` | `ar init mcpserver NAME` | `ar build ./NAME` | An MCP server providing tools/resources |
 | `Skill` | `ar init skill NAME` | N/A (no container) | A reusable skill definition (SKILL.md) |
 | `Prompt` | `ar init prompt NAME` | N/A (no container) | A versioned prompt template |
@@ -117,7 +117,7 @@ Here's the end-to-end workflow for building an agent with dependencies:
 ar init mcpserver my-tools --transport stdio
 
 # 2. Scaffold the agent
-ar init agent my-agent --model-provider openai --model-name gpt-4o
+ar init agent adk python my-agent --model-provider openai --model-name gpt-4o
 
 # 3. Edit my-agent/agent.yaml to reference the MCP server:
 #    mcpServers:
