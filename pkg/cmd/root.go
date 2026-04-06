@@ -99,6 +99,7 @@ to inspect and manage resources.`,
 		newImportCmd(),
 		newVersionCmd(),
 		newConfigCmd(),
+		newProviderCmd(),
 	)
 
 	return root

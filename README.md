@@ -112,6 +112,28 @@ arc api jwks
 arc api get /v0/providers
 ```
 
+## Provider Management
+
+Manage cloud provider connections for AgentCore (AWS) and Vertex (GCP):
+
+```bash
+# List provider connections
+arc provider list
+arc provider list --platform gcp
+
+# Add providers
+arc provider add aws my-aws --role-arn arn:aws:iam::123:role/Role --external-id abc
+arc provider add gcp my-gcp --project-id my-project
+
+# Update / delete providers
+arc provider update my-aws --region us-west-2
+arc provider delete my-aws
+
+# Bootstrap cloud infrastructure
+arc provider setup aws --aws-account-id 123456789012 > cf-template.yaml
+arc provider setup gcp --project-id my-project
+```
+
 ## Project Layout
 
 ```text

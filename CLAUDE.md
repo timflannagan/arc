@@ -16,7 +16,7 @@ make install  # installs to $GOPATH/bin
 - **Client** (`pkg/client/`): Thin HTTP client for the registry v0 API. Intentionally decoupled from the agentregistry module.
 - **Config** (`pkg/config/`): kubeconfig-style config at `~/.arc/config`. `set-context` is the single command for adding registries (manages clusters internally).
 - **Scaffold** (`pkg/scaffold/`): Project scaffolding templates for each resource type. Used by `arc init`.
-- **Commands** (`pkg/cmd/`): Cobra command tree. Local ops: `init`, `build`. Registry ops: `apply`, `get`, `pull`, `delete`, `import`, `export`. Config: `config`.
+- **Commands** (`pkg/cmd/`): Cobra command tree. Local ops: `init`, `build`. Registry ops: `apply`, `get`, `pull`, `delete`, `import`, `export`. Provider ops: `provider list`, `provider add`, `provider delete`, `provider update`, `provider setup`. Config: `config`.
 - **Printer** (`pkg/printer/`): Output formatting (table, YAML, JSON) via `-o` flag.
 
 ## API Version
