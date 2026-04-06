@@ -13,6 +13,12 @@ It works with four first-class resource types:
 Resources are authored as YAML, mapped into the registry REST API, and can be
 retrieved back into YAML for inspection or reuse.
 
+## Why this exists
+
+The open-source `arctl` is still useful as a broad imperative client, but it is not optimized for declarative, repeatable publish and deployment workflows. `arc` takes the opposite position: treat YAML as the primary interface, keep resource operations predictable, and make changes easy to review, commit, and replay.
+
+We are building this so teams can rely on versioned artifacts instead of remembering the right one-off CLI invocation from the right machine. The intent is to improve deployment ergonomics in general, not just add another front-end on top of the existing OSS flow.
+
 ## Status
 
 This is a lightweight client for the registry API. It is intentionally thinner
