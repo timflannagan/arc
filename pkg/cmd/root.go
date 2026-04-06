@@ -48,11 +48,8 @@ to inspect and manage resources.`,
 			outputFormat = printer.ParseFormat(flagOutput)
 
 			// Skip client setup for local-only commands.
-			for p := cmd; p != nil; p = p.Parent() {
-				switch p.Name() {
-				case "version", "config", "init", "build":
-					return nil
-				}
+			if isLocalOnlyCommand(cmd) {
+				return nil
 			}
 
 			// Load config and resolve connection info.
@@ -105,6 +102,29 @@ to inspect and manage resources.`,
 	)
 
 	return root
+}
+
+func isLocalOnlyCommand(cmd *cobra.Command) bool {
+	if cmd == nil {
+		return false
+	}
+
+	parents := cmd.CommandPath()
+	switch parents {
+	case "arc version", "arc config", "arc config view", "arc config use-context",
+		"arc config set-context":
+		return true
+	}
+
+	if cmd.HasParent() && cmd.Parent().CommandPath() == "arc init" {
+		return true
+	}
+
+	if cmd.CommandPath() == "arc build" {
+		return true
+	}
+
+	return false
 }
 
 func newVersionCmd() *cobra.Command {
