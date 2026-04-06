@@ -43,12 +43,7 @@ func (s *SkillType) ToCreatePayload(r *Resource) (any, error) {
 }
 
 func (s *SkillType) ExtractItem(response map[string]any) map[string]any {
-	if item, ok := response["skill"]; ok {
-		if data, ok := item.(map[string]any); ok {
-			return data
-		}
-	}
-	return response
+	return extractItemField(response, "skill", "skills")
 }
 
 func (s *SkillType) ExtractList(response map[string]any) []map[string]any {

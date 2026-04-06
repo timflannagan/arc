@@ -19,7 +19,7 @@ curl -fsSL https://raw.githubusercontent.com/agentregistry-dev/agentregistry/mai
 arctl daemon start
 
 # Verify it's running
-curl -s http://localhost:12121/ping
+curl -s http://localhost:12121/v0/ping
 ```
 
 This starts:
@@ -164,6 +164,8 @@ arc apply -f my-agent/agent.yaml
 ### 4. Verify
 
 ```bash
+arc api ping                         # connectivity check
+arc api version                      # registry build/version info
 arc get agents                       # list all agents
 arc get agent my-agent               # show details
 arc get agent my-agent -o yaml       # full YAML output
@@ -345,6 +347,16 @@ All `get` commands support `-o` for output format:
 arc get agents              # table (default)
 arc get agents -o yaml      # YAML
 arc get agents -o json      # JSON
+```
+
+For `arc api` commands, `json` is the default output format. Use `-o yaml`
+when you want YAML instead:
+
+```bash
+arc api version
+arc api jwks
+arc api get /v0/providers
+arc api get /token-provider/jwks.json -o yaml
 ```
 
 ## Pulling Resources

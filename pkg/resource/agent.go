@@ -7,10 +7,10 @@ func init() { Register(&AgentType{}) }
 // AgentType implements ResourceType for Agent resources.
 type AgentType struct{}
 
-func (a *AgentType) Kind() string    { return "Agent" }
+func (a *AgentType) Kind() string     { return "Agent" }
 func (a *AgentType) Singular() string { return "agent" }
-func (a *AgentType) Plural() string  { return "agents" }
-func (a *AgentType) APIPath() string { return "/agents" }
+func (a *AgentType) Plural() string   { return "agents" }
+func (a *AgentType) APIPath() string  { return "/agents" }
 
 func (a *AgentType) TableColumns() []string {
 	return []string{"Name", "Version", "Framework", "Model", "Status"}
@@ -48,12 +48,7 @@ func (a *AgentType) ToCreatePayload(r *Resource) (any, error) {
 }
 
 func (a *AgentType) ExtractItem(response map[string]any) map[string]any {
-	if item, ok := response["agent"]; ok {
-		if m, ok := item.(map[string]any); ok {
-			return m
-		}
-	}
-	return response
+	return extractItemField(response, "agent", "agents")
 }
 
 func (a *AgentType) ExtractList(response map[string]any) []map[string]any {
@@ -99,6 +94,23 @@ func extractNested(data map[string]any, key string) map[string]any {
 		}
 	}
 	return nil
+}
+
+func extractItemField(data map[string]any, singularKey, pluralKey string) map[string]any {
+	if item := extractNested(data, singularKey); item != nil {
+		return item
+	}
+
+	items := extractListField(data, pluralKey)
+	if len(items) == 0 {
+		return data
+	}
+
+	if item := extractNested(items[0], singularKey); item != nil {
+		return item
+	}
+
+	return items[0]
 }
 
 func extractListField(data map[string]any, key string) []map[string]any {

@@ -42,12 +42,7 @@ func (p *PromptType) ToCreatePayload(r *Resource) (any, error) {
 }
 
 func (p *PromptType) ExtractItem(response map[string]any) map[string]any {
-	if item, ok := response["prompt"]; ok {
-		if data, ok := item.(map[string]any); ok {
-			return data
-		}
-	}
-	return response
+	return extractItemField(response, "prompt", "prompts")
 }
 
 func (p *PromptType) ExtractList(response map[string]any) []map[string]any {

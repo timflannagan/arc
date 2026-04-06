@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -38,15 +39,14 @@ func (c *Client) List(apiPath string) (map[string]any, error) {
 	return c.do(http.MethodGet, apiPath, nil)
 }
 
-// Get fetches a single resource by name.
+// Get fetches the latest version of a single resource by name.
 func (c *Client) Get(apiPath, name string) (map[string]any, error) {
-	path := fmt.Sprintf("%s/%s", apiPath, name)
-	return c.do(http.MethodGet, path, nil)
+	return c.GetVersion(apiPath, name, "latest")
 }
 
 // GetVersion fetches a specific version of a resource.
 func (c *Client) GetVersion(apiPath, name, version string) (map[string]any, error) {
-	path := fmt.Sprintf("%s/%s/versions/%s", apiPath, name, version)
+	path := fmt.Sprintf("%s/%s/versions/%s", apiPath, escapePathSegment(name), escapePathSegment(version))
 	return c.do(http.MethodGet, path, nil)
 }
 
@@ -55,19 +55,31 @@ func (c *Client) Create(apiPath string, body any) (map[string]any, error) {
 	return c.do(http.MethodPost, apiPath, body)
 }
 
+// GetAny fetches an arbitrary JSON endpoint and returns the decoded body.
+func (c *Client) GetAny(path string) (any, error) {
+	return c.doAny(http.MethodGet, path, nil)
+}
+
 // Delete removes a resource version.
 func (c *Client) Delete(apiPath, name, version string) error {
-	path := fmt.Sprintf("%s/%s/versions/%s", apiPath, name, version)
+	path := fmt.Sprintf("%s/%s/versions/%s", apiPath, escapePathSegment(name), escapePathSegment(version))
 	_, err := c.do(http.MethodDelete, path, nil)
 	return err
 }
 
 // Ping checks connectivity to the registry.
 func (c *Client) Ping() error {
-	url := strings.TrimSuffix(c.baseURL, "/v0") + "/ping"
-	resp, err := c.httpClient.Get(url)
+	req, err := http.NewRequest(http.MethodGet, c.resolveURL("/ping"), nil)
 	if err != nil {
-		return fmt.Errorf("connecting to %s: %w", url, err)
+		return fmt.Errorf("creating ping request: %w", err)
+	}
+	if c.token != "" {
+		req.Header.Set("Authorization", "Bearer "+c.token)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("connecting to %s: %w", req.URL.String(), err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
@@ -77,27 +89,24 @@ func (c *Client) Ping() error {
 }
 
 func (c *Client) do(method, path string, body any) (map[string]any, error) {
-	url := c.baseURL + path
-
-	var bodyReader io.Reader
-	if body != nil {
-		data, err := json.Marshal(body)
-		if err != nil {
-			return nil, fmt.Errorf("encoding request body: %w", err)
-		}
-		bodyReader = bytes.NewReader(data)
-	}
-
-	req, err := http.NewRequest(method, url, bodyReader)
+	result, err := c.doAny(method, path, body)
 	if err != nil {
-		return nil, fmt.Errorf("creating request: %w", err)
+		return nil, err
 	}
+	if result == nil {
+		return nil, nil
+	}
+	data, ok := result.(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("parsing response JSON: expected object, got %T", result)
+	}
+	return data, nil
+}
 
-	if body != nil {
-		req.Header.Set("Content-Type", "application/json")
-	}
-	if c.token != "" {
-		req.Header.Set("Authorization", "Bearer "+c.token)
+func (c *Client) doAny(method, path string, body any) (any, error) {
+	req, err := c.newRequest(method, path, body)
+	if err != nil {
+		return nil, err
 	}
 
 	resp, err := c.httpClient.Do(req)
@@ -120,11 +129,57 @@ func (c *Client) do(method, path string, body any) (map[string]any, error) {
 		return nil, nil
 	}
 
-	var result map[string]any
+	var result any
 	if err := json.Unmarshal(respBody, &result); err != nil {
 		return nil, fmt.Errorf("parsing response JSON: %w", err)
 	}
 	return result, nil
+}
+
+func (c *Client) newRequest(method, path string, body any) (*http.Request, error) {
+	var bodyReader io.Reader
+	if body != nil {
+		data, err := json.Marshal(body)
+		if err != nil {
+			return nil, fmt.Errorf("encoding request body: %w", err)
+		}
+		bodyReader = bytes.NewReader(data)
+	}
+
+	req, err := http.NewRequest(method, c.resolveURL(path), bodyReader)
+	if err != nil {
+		return nil, fmt.Errorf("creating request: %w", err)
+	}
+
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
+	if c.token != "" {
+		req.Header.Set("Authorization", "Bearer "+c.token)
+	}
+
+	return req, nil
+}
+
+func (c *Client) resolveURL(path string) string {
+	switch {
+	case strings.HasPrefix(path, "http://"), strings.HasPrefix(path, "https://"):
+		return path
+	case path == "/v0", strings.HasPrefix(path, "/v0/"):
+		return strings.TrimSuffix(c.baseURL, "/v0") + path
+	case path == "v0", strings.HasPrefix(path, "v0/"):
+		return strings.TrimSuffix(c.baseURL, "/v0") + "/" + path
+	case strings.HasPrefix(path, "/"):
+		return c.baseURL + path
+	case path == "":
+		return c.baseURL
+	default:
+		return c.baseURL + "/" + path
+	}
+}
+
+func escapePathSegment(value string) string {
+	return strings.ReplaceAll(url.PathEscape(value), "+", "%2B")
 }
 
 func parseError(status int, body []byte) error {

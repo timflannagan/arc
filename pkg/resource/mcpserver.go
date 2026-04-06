@@ -42,12 +42,7 @@ func (m *MCPServerType) ToCreatePayload(r *Resource) (any, error) {
 }
 
 func (m *MCPServerType) ExtractItem(response map[string]any) map[string]any {
-	if item, ok := response["server"]; ok {
-		if data, ok := item.(map[string]any); ok {
-			return data
-		}
-	}
-	return response
+	return extractItemField(response, "server", "servers")
 }
 
 func (m *MCPServerType) ExtractList(response map[string]any) []map[string]any {

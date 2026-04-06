@@ -91,6 +91,7 @@ to inspect and manage resources.`,
 
 	// Register subcommands.
 	root.AddCommand(
+		newAPICmd(),
 		newInitCmd(),
 		newBuildCmd(),
 		newApplyCmd(),
